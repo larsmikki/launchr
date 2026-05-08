@@ -9,8 +9,6 @@ A lightweight, self-hosted web launcher. Organize your bookmarks into a drag-and
 
 ![Linky screenshot](resources/screenshot.png)
 
----
-
 ## Quick Start
 
 ### Docker (recommended)
@@ -35,16 +33,12 @@ docker compose up -d
 
 Open http://localhost:3020
 
----
-
 ## Usage
 
 - **Right-click** the background to add shortcuts or groups
 - **Right-click** a shortcut or group to edit, move, or delete
 - **Long-press** on touch devices works the same way
 - Enable **Arrange Mode** from the context menu to drag items around the grid
-
----
 
 ## Features
 
@@ -58,8 +52,6 @@ Open http://localhost:3020
 - Responsive — works on mobile and desktop
 - Data persisted in SQLite
 
----
-
 ## Configuration
 
 | Environment variable | Default | Description |
@@ -68,13 +60,9 @@ Open http://localhost:3020
 | `DATA_DIR` | `/app/data` | Directory for database and icon cache |
 | `ALLOWED_ORIGINS` | `http://localhost:3020` | Comma-separated allowed CORS origins |
 
----
-
 ## Data Persistence
 
 Data is stored in a Docker volume (`linky-data`) at `/app/data` inside the container. Back up via Settings → Export, or copy the volume contents directly.
-
----
 
 ## Tech Stack
 
@@ -82,8 +70,6 @@ Data is stored in a Docker volume (`linky-data`) at `/app/data` inside the conta
 - **Backend:** Express, TypeScript
 - **Database:** SQLite (via sql.js)
 - **Icons:** Sharp for image processing
-
----
 
 ## Support
 
