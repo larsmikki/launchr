@@ -3,8 +3,8 @@
 A lightweight, self-hosted web launcher. Organize your bookmarks into a drag-and-drop grid with collapsible groups and auto-fetched favicons.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Docker Pulls](https://img.shields.io/docker/pulls/larsmikki/linky)](https://hub.docker.com/r/larsmikki/linky)
-[![Docker Image Size](https://img.shields.io/docker/image-size/larsmikki/linky/latest)](https://hub.docker.com/r/larsmikki/linky)
+[![Docker Hub](https://img.shields.io/badge/Docker%20Hub-larsmikki%2Flinky-blue?logo=docker)](https://hub.docker.com/r/larsmikki/linky)
+[![ghcr.io](https://img.shields.io/badge/ghcr.io-larsmikki%2Flinky-blue?logo=github)](https://github.com/larsmikki/linky/pkgs/container/linky)
 [![Last Commit](https://img.shields.io/github/last-commit/larsmikki/linky)](https://github.com/larsmikki/linky/commits/main)
 
 ![Linky screenshot](resources/screenshot.png)
