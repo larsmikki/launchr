@@ -2,6 +2,7 @@ import { Link, NavLink, Outlet } from 'react-router-dom';
 import { useTheme } from '@/contexts/ThemeContext';
 import { usePageActions } from '@/contexts/PageActionsContext';
 import Footer from '@/components/Footer';
+import { Button } from '@/components/ui';
 
 function LinkyLogoMark() {
   return <img src="/favicon.svg" width={28} height={28} alt="Linky" className="shrink-0" />;
@@ -11,15 +12,13 @@ export default function Layout() {
   const { theme } = useTheme();
   const { onNewLink, onEditLayout, editLayoutActive } = usePageActions();
   return (
-    <div className="desktop" style={{ background: theme.bg }}>
+    <div className="desktop bg-bg text-text">
       <header
-        className="sticky top-0 z-40 w-full flex items-center box-border shrink-0"
+        className="sticky top-0 z-40 w-full flex items-center box-border shrink-0 backdrop-blur-md"
         style={{
-          height: '64px',
+          height: 'var(--header-height)',
           background: `${theme.surface}dd`,
           borderBottom: `1px solid ${theme.border}`,
-          backdropFilter: 'blur(12px)',
-          WebkitBackdropFilter: 'blur(12px)',
         }}
       >
         <div className="w-full px-5 flex items-center justify-between">
@@ -31,40 +30,40 @@ export default function Layout() {
           </Link>
           <nav className="flex items-center gap-2">
             {onNewLink && (
-              <button
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
                 onClick={onNewLink}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: '6px',
-                  padding: '7px 12px', borderRadius: '8px', cursor: 'pointer',
-                  background: 'transparent', border: 'none',
-                  color: theme.text2, fontSize: '14px', fontWeight: 500,
-                  fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-                }}
+                className="hidden sm:inline-flex"
+                leadingIcon={(
+                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M12 5v14M5 12h14"/>
+                  </svg>
+                )}
               >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M12 5v14M5 12h14"/>
-                </svg>
-                New Link
-              </button>
+                New link
+              </Button>
             )}
             {onEditLayout && (
-              <button
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
                 onClick={onEditLayout}
+                className="hidden sm:inline-flex"
                 style={{
-                  display: 'flex', alignItems: 'center', gap: '6px',
-                  padding: '7px 12px', borderRadius: '8px', cursor: 'pointer',
                   background: editLayoutActive ? `${theme.accent}18` : 'transparent',
-                  border: 'none',
                   color: editLayoutActive ? theme.accent : theme.text2,
-                  fontSize: '14px', fontWeight: 500,
-                  fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
                 }}
+                leadingIcon={(
+                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+                  </svg>
+                )}
               >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
-                </svg>
-                {editLayoutActive ? 'Save Layout' : 'Edit Layout'}
-              </button>
+                {editLayoutActive ? 'Save layout' : 'Edit layout'}
+              </Button>
             )}
             <NavLink
               to="/settings"
@@ -75,7 +74,6 @@ export default function Layout() {
                 background: isActive ? `${theme.accent}18` : 'transparent',
                 color: isActive ? theme.accent : theme.text2,
                 fontSize: '14px', fontWeight: 500,
-                fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
               })}
             >
               <svg fill="currentColor" viewBox="0 0 20 20" className="w-4 h-4 shrink-0">

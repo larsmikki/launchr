@@ -26,8 +26,7 @@ const upload = multer({
 
 // #1: Allowlist of accepted setting keys — rejects unknown keys
 const SETTINGS_KEYS = new Set([
-  'bg_color', 'layout_mode', 'show_title', 'show_topbar',
-  'column_extra_width', 'group_color', 'link_target',
+  'layout_mode', 'column_extra_width', 'link_target',
 ]);
 
 router.get('/settings', (_req: Request, res: Response) => {

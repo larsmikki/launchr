@@ -35,7 +35,7 @@ ENV DATA_DIR=/app/data
 
 EXPOSE 3020
 
-HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+HEALTHCHECK --interval=5m --timeout=5s --start-period=10s --retries=3 \
   CMD wget -qO- http://localhost:3020/api/settings || exit 1
 
 CMD ["node", "server/dist/index.js"]

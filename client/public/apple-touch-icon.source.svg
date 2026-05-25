@@ -1,0 +1,17 @@
+<svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="linky-touch-bg" x1="0" y1="0" x2="1" y2="1" gradientUnits="objectBoundingBox">
+      <stop offset="0%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#1d4ed8"/>
+    </linearGradient>
+    <linearGradient id="linky-touch-sh" x1="0" y1="0" x2="0" y2="1" gradientUnits="objectBoundingBox">
+      <stop offset="0%" stop-color="white" stop-opacity="0.22"/>
+      <stop offset="100%" stop-color="white" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="180" height="180" rx="40" fill="url(#linky-touch-bg)"/>
+  <rect width="180" height="100" rx="40" fill="url(#linky-touch-sh)"/>
+
+  <path d="M58.75 40H121.25V135L90 111.5L58.75 135Z" fill="white" opacity="0.95"/>
+  <rect x="75" y="57.5" width="30" height="10" rx="5" fill="url(#linky-touch-bg)" opacity="0.85"/>
+</svg>

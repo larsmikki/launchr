@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import Modal from '@/components/Modal';
 import { Shortcut, Group } from '@/types';
+import { Button, Input, Modal, Select } from '@/components/ui';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface Props {
   shortcut?: Shortcut | null;
@@ -11,6 +12,7 @@ interface Props {
 }
 
 export default function ShortcutDialog({ shortcut, groups, defaultGroupId, onSave, onClose }: Props) {
+  const { theme } = useTheme();
   const [title, setTitle] = useState(shortcut?.title || '');
   const [url, setUrl] = useState(shortcut?.url || '');
   const [groupId, setGroupId] = useState<number | null>(shortcut?.group_id ?? defaultGroupId ?? (groups.length > 0 ? groups[0].id : null));
@@ -24,22 +26,33 @@ export default function ShortcutDialog({ shortcut, groups, defaultGroupId, onSav
   };
 
   return (
-    <Modal onClose={onClose}>
-      <h2>{shortcut ? 'Edit Shortcut' : 'Add Shortcut'}</h2>
-      <form onSubmit={handleSubmit}>
-        <label>Title</label>
-        <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. GitHub" autoFocus />
-        <label>URL</label>
-        <input type="text" value={url} onChange={(e) => setUrl(e.target.value)} placeholder="e.g. github.com" />
-        <label>Group</label>
-        <select value={groupId ?? ''} onChange={(e) => setGroupId(e.target.value ? Number(e.target.value) : null)}>
-          {groups.map((g) => (
-            <option key={g.id} value={g.id}>{g.title || `Group ${g.id}`}</option>
-          ))}
-        </select>
-        <div className="modal-actions">
-          <button type="button" className="btn btn-secondary" onClick={onClose}>Cancel</button>
-          <button type="submit" className="btn btn-primary">Save</button>
+    <Modal open onClose={onClose} title={shortcut ? 'Edit shortcut' : 'Add shortcut'} maxWidth="420px">
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="mb-1 block text-xs font-semibold uppercase tracking-wider" style={{ color: theme.text2 }}>
+            Title
+          </label>
+          <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="GitHub" autoFocus />
+        </div>
+        <div>
+          <label className="mb-1 block text-xs font-semibold uppercase tracking-wider" style={{ color: theme.text2 }}>
+            URL
+          </label>
+          <Input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="github.com" />
+        </div>
+        <div>
+          <label className="mb-1 block text-xs font-semibold uppercase tracking-wider" style={{ color: theme.text2 }}>
+            Group
+          </label>
+          <Select value={groupId ?? ''} onChange={(e) => setGroupId(e.target.value ? Number(e.target.value) : null)}>
+            {groups.map((g) => (
+              <option key={g.id} value={g.id}>{g.title || `Group ${g.id}`}</option>
+            ))}
+          </Select>
+        </div>
+        <div className="flex justify-end gap-2 pt-2">
+          <Button type="button" variant="secondary" onClick={onClose}>Cancel</Button>
+          <Button type="submit" variant="primary">Save</Button>
         </div>
       </form>
     </Modal>

@@ -30,8 +30,8 @@ describe('GET /api/settings', () => {
     const res = await request(app).get('/api/settings');
     expect(res.status).toBe(200);
     expect(res.body).toMatchObject({
-      bg_color: '#f0f2f5',
       layout_mode: 'row',
+      column_extra_width: '0',
       link_target: '_blank',
     });
   });
@@ -40,9 +40,9 @@ describe('GET /api/settings', () => {
 describe('PUT /api/settings', () => {
   it('updates a known setting key', async () => {
     const app = buildApp();
-    await request(app).put('/api/settings').send({ bg_color: '#123456' });
+    await request(app).put('/api/settings').send({ link_target: '_self' });
     const res = await request(app).get('/api/settings');
-    expect(res.body.bg_color).toBe('#123456');
+    expect(res.body.link_target).toBe('_self');
   });
 
   it('silently ignores unknown keys (allowlist enforcement)', async () => {
@@ -235,7 +235,7 @@ describe('Export and Import', () => {
     const res = await request(app).post('/api/import').send({
       groups: [{ id: 99, title: 'Imported', color: '#ffffff', collapsed: 0, grid_x: 0, grid_y: 0, grid_w: 4, grid_h: 4, sort_order: 0 }],
       shortcuts: [],
-      settings: [{ key: 'bg_color', value: '#abcdef' }],
+      settings: [{ key: 'link_target', value: '_self' }],
     });
     expect(res.status).toBe(200);
 
@@ -244,7 +244,7 @@ describe('Export and Import', () => {
     expect(groups.body[0].title).toBe('Imported');
 
     const settings = await request(app).get('/api/settings');
-    expect(settings.body.bg_color).toBe('#abcdef');
+    expect(settings.body.link_target).toBe('_self');
   });
 
   it('rejects import with invalid icon filename', async () => {

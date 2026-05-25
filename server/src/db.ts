@@ -67,12 +67,8 @@ async function initDb(): Promise<SqlJsDatabase> {
 
   // #13: Consolidated seeding — single consistent pattern for all defaults
   const defaults: [string, string][] = [
-    ['bg_color', '#f0f2f5'],
     ['layout_mode', 'row'],
-    ['show_title', 'true'],
-    ['show_topbar', 'true'],
     ['column_extra_width', '0'],
-    ['group_color', '#e0e7ff'],
     ['link_target', '_blank'],
   ];
   for (const [key, value] of defaults) {

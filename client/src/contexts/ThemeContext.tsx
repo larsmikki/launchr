@@ -27,8 +27,36 @@ export const THEMES: ThemeDefinition[] = [
     text2: '#71717a',
     accent: '#2563eb',
     gradient: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
-    previewColors: ['#e8eaed', '#d1d5db', '#2563eb'],
+    previewColors: ['#f0f2f5', '#e8eaed', '#2563eb'],
     groupColors: ['#ffffff'],
+  },
+  {
+    name: 'Dark',
+    mode: 'dark',
+    bg: '#0a0a0f',
+    surface: '#111118',
+    surface2: '#111a28',
+    border: 'rgba(37,99,235,0.18)',
+    text: '#f0f4ff',
+    text2: '#7d8faa',
+    accent: '#2563eb',
+    gradient: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+    previewColors: ['#0a0a0f', '#111a28', '#2563eb'],
+    groupColors: ['#0f1a28', '#111e30', '#101828', '#131f2e'],
+  },
+  {
+    name: 'Midnight',
+    mode: 'dark',
+    bg: '#050814',
+    surface: '#0d1117',
+    surface2: '#161b22',
+    border: 'rgba(125,211,252,0.18)',
+    text: '#e2f8ff',
+    text2: '#7d8ea0',
+    accent: '#7dd3fc',
+    gradient: 'linear-gradient(135deg, #7dd3fc 0%, #1d4ed8 100%)',
+    previewColors: ['#050814', '#0d2a35', '#7dd3fc'],
+    groupColors: ['#0d1117', '#0d1f2d', '#0d1a2d', '#1a0d2d'],
   },
   {
     name: 'Rainbow',
@@ -128,34 +156,6 @@ export const THEMES: ThemeDefinition[] = [
     previewColors: ['#f1f3f5', '#e9ecef', '#dee2e6'],
     groupColors: ['#f8fafc', '#f1f5f9', '#f5f5f5', '#e2e8f0'],
   },
-  {
-    name: 'Dark',
-    mode: 'dark',
-    bg: '#0a0a0f',
-    surface: '#111118',
-    surface2: '#111a28',
-    border: 'rgba(59,130,246,0.18)',
-    text: '#f0f4ff',
-    text2: '#7d8faa',
-    accent: '#3b82f6',
-    gradient: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
-    previewColors: ['#111a28', '#1a2d45', '#3b82f6'],
-    groupColors: ['#0f1a28', '#111e30', '#101828', '#131f2e'],
-  },
-  {
-    name: 'Midnight',
-    mode: 'dark',
-    bg: '#050814',
-    surface: '#0d1117',
-    surface2: '#161b22',
-    border: 'rgba(6,182,212,0.15)',
-    text: '#e2f8ff',
-    text2: '#7d8ea0',
-    accent: '#06b6d4',
-    gradient: 'linear-gradient(135deg, #06b6d4 0%, #0284c7 100%)',
-    previewColors: ['#161b22', '#0d2a35', '#06b6d4'],
-    groupColors: ['#0d1117', '#0d1f2d', '#0d1a2d', '#1a0d2d'],
-  },
 ]
 
 interface ThemeContextType {
@@ -189,6 +189,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     root.style.setProperty('--theme-text', theme.text)
     root.style.setProperty('--theme-text2', theme.text2)
     root.style.setProperty('--theme-accent', theme.accent)
+    root.style.setProperty('--theme-gradient', theme.gradient)
+    root.style.setProperty('--brand-gradient', theme.gradient)
   }, [theme])
 
   const setThemeByName = (name: string) => {

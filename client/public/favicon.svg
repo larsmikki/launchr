@@ -1,15 +1,15 @@
-<svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="linky">
   <defs>
-    <linearGradient id="linky-fav-bg" x1="0" y1="0" x2="1" y2="1" gradientUnits="objectBoundingBox">
-      <stop offset="0%" stop-color="#7dd3fc"/>
-      <stop offset="100%" stop-color="#1d4ed8"/>
-    </linearGradient>
-    <linearGradient id="linky-fav-sh" x1="0" y1="0" x2="0" y2="1" gradientUnits="objectBoundingBox">
-      <stop offset="0%" stop-color="white" stop-opacity="0.22"/>
-      <stop offset="100%" stop-color="white" stop-opacity="0"/>
+    <linearGradient id="bg-linky" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#3b82f6"></stop>
+      <stop offset="100%" stop-color="#1d4ed8"></stop>
     </linearGradient>
   </defs>
-  <rect width="36" height="36" rx="10" fill="url(#linky-fav-bg)"/>
-  <rect width="36" height="20" rx="10" fill="url(#linky-fav-sh)"/>
-  <path d="M11.6 10 L24.4 10 L24.4 26 L18 21.2 L11.6 26 Z" fill="white" opacity="0.95"/>
+  <rect width="64" height="64" rx="14.4" fill="url(#bg-linky)"></rect>
+  <g color="#ffffff" transform="translate(6.399999999999999 6.399999999999999) scale(0.8)">
+    <g stroke="none">
+    <path fill="currentColor" fill-rule="evenodd" d="M36 32 a13 13 0 1 0 -26 0 a13 13 0 1 0 26 0 Z M31 32 a8 8 0 1 1 -16 0 a8 8 0 1 1 16 0 Z"></path>
+    <circle cx="41" cy="32" r="13" fill="currentColor"></circle>
+  </g>
+  </g>
 </svg>

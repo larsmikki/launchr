@@ -3,10 +3,8 @@ import { Shortcut, Group, Settings } from '@/types';
 import { api } from '@/hooks/useApi';
 
 export const DEFAULT_SETTINGS: Settings = {
-  bg_color: '#f0f2f5',
   layout_mode: 'row',
   column_extra_width: '0',
-  group_color: '#e0e7ff',
   link_target: '_blank',
 };
 

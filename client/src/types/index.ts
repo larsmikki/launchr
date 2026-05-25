@@ -26,10 +26,8 @@ export interface Group {
 }
 
 export interface Settings {
-  bg_color: string;
   layout_mode: 'row' | 'column';
   column_extra_width: string;
-  group_color: string;
   link_target: string;
   [key: string]: string;
 }

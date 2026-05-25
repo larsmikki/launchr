@@ -75,7 +75,7 @@ async function fetchFavicon(url: string, shortcutId: number): Promise<string | n
           }
         }
 
-        const filename = `favicon_${shortcutId}.${finalExt}`;
+        const filename = `favicon_${shortcutId}_${Date.now()}.${finalExt}`;
         const filepath = path.join(ICONS_DIR, filename);
         fs.writeFileSync(filepath, finalBuffer);
         return filename;

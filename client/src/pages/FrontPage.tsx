@@ -9,6 +9,7 @@ import GroupDialog from '@/components/GroupDialog';
 import ContextMenu from '@/components/ContextMenu';
 import { useTheme } from '@/contexts/ThemeContext';
 import { usePageActions } from '@/contexts/PageActionsContext';
+import { ConfirmDialog, useToast } from '@/components/ui';
 
 const addGroupIcon = (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -30,18 +31,18 @@ export default function FrontPage() {
   >(null);
 
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; shortcutId: number } | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<
+    | { type: 'shortcut'; id: number; title: string }
+    | { type: 'group'; id: number; title: string }
+    | null
+  >(null);
 
   const handleShortcutContextMenu = useCallback((shortcutId: number, e: React.MouseEvent) => {
     setContextMenu({ x: e.clientX, y: e.clientY, shortcutId });
   }, []);
 
-  const [toast, setToast] = useState<string | null>(null);
-  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const showToast = useCallback((msg: string) => {
-    if (toastTimer.current) clearTimeout(toastTimer.current);
-    setToast(msg);
-    toastTimer.current = setTimeout(() => setToast(null), 2500);
-  }, []);
+  const { addToast } = useToast();
+  const showToast = useCallback((msg: string) => addToast(msg), [addToast]);
 
   const activePolls = useRef<ReturnType<typeof setInterval>[]>([]);
   useEffect(() => {
@@ -146,7 +147,7 @@ export default function FrontPage() {
   }, [setShortcuts]);
 
   const handleRefreshFavicon = useCallback(async (id: number) => {
-    showToast('Refreshing favicon…');
+    showToast('Refreshing favicon...');
     const updated = await api.refreshFavicon(id);
     setShortcuts(prev => prev.map(s => s.id === id ? updated : s));
     showToast('Icon updated');
@@ -170,11 +171,20 @@ export default function FrontPage() {
   }, [setShortcuts]);
 
   const handleRemoveIcon = useCallback(async (id: number) => {
-    showToast('Removing icon…');
+    showToast('Removing icon...');
     const updated = await api.removeIcon(id);
     setShortcuts(prev => prev.map(s => s.id === id ? updated : s));
     showToast('Icon removed');
   }, [showToast, setShortcuts]);
+
+  const handleConfirmDelete = useCallback(() => {
+    if (!confirmDelete) return;
+    if (confirmDelete.type === 'group') {
+      void handleDeleteGroup(confirmDelete.id);
+    } else {
+      void handleDeleteShortcut(confirmDelete.id);
+    }
+  }, [confirmDelete, handleDeleteGroup, handleDeleteShortcut]);
 
   const contextMenuItems = useMemo(() => {
     if (!contextMenu) return null;
@@ -187,9 +197,9 @@ export default function FrontPage() {
       { label: 'Refresh Favicon', onClick: () => handleRefreshFavicon(sc.id) },
       ...(sc.icon_path ? [{ label: 'Remove Icon', onClick: () => handleRemoveIcon(sc.id) }] : []),
       { divider: true, label: '', onClick: () => {} },
-      { label: 'Delete', danger: true, onClick: () => handleDeleteShortcut(sc.id) },
+      { label: 'Delete', danger: true, onClick: () => setConfirmDelete({ type: 'shortcut', id: sc.id, title: sc.title }) },
     ];
-  }, [contextMenu, shortcuts, handleUploadIcon, handleRefreshFavicon, handleRemoveIcon, handleDeleteShortcut]);
+  }, [contextMenu, shortcuts, handleUploadIcon, handleRefreshFavicon, handleRemoveIcon]);
 
   return (
     <>
@@ -205,7 +215,10 @@ export default function FrontPage() {
             linkTarget={settings.link_target || '_blank'}
             onToggleCollapse={handleToggleCollapse}
             onEditGroup={handleOpenEditGroup}
-            onDeleteGroup={handleDeleteGroup}
+            onDeleteGroup={(groupId) => {
+              const group = groups.find(g => g.id === groupId);
+              setConfirmDelete({ type: 'group', id: groupId, title: group?.title || 'Untitled group' });
+            }}
             onGroupDragStart={drag.handleGroupDragStart}
             onGroupDragOver={drag.handleGroupDragOver}
             onGroupDrop={drag.handleGroupDrop}
@@ -218,7 +231,8 @@ export default function FrontPage() {
           />
         ))}
         {arrangeMode && (
-          <div
+          <button
+            type="button"
             className="group-container"
             onClick={() => setDialog({ type: 'group' })}
             style={{
@@ -231,8 +245,8 @@ export default function FrontPage() {
             }}
           >
             {addGroupIcon}
-            Add Group
-          </div>
+            Add group
+          </button>
         )}
       </div>
 
@@ -262,7 +276,20 @@ export default function FrontPage() {
         />
       )}
 
-      {toast && <div className="toast">{toast}</div>}
+      <ConfirmDialog
+        open={Boolean(confirmDelete)}
+        title={confirmDelete?.type === 'group' ? 'Delete group' : 'Delete shortcut'}
+        message={
+          confirmDelete?.type === 'group'
+            ? `Delete "${confirmDelete.title || 'Untitled group'}" and its shortcuts.`
+            : `Delete "${confirmDelete?.title || 'this shortcut'}".`
+        }
+        confirmLabel="Delete"
+        destructive
+        onConfirm={handleConfirmDelete}
+        onClose={() => setConfirmDelete(null)}
+      />
+
     </>
   );
 }
