@@ -4,25 +4,25 @@ RUN apk add --no-cache python3 make g++
 
 WORKDIR /app
 
-COPY client/package.json client/package-lock.json* client/
-COPY server/package.json server/package-lock.json* server/
+COPY package.json package-lock.json ./
+COPY server/package.json server/
+COPY client/package.json client/
+RUN npm ci
 
-RUN cd client && npm install && cd ../server && npm install
-
-COPY client/ client/
+COPY tsconfig.base.json ./
 COPY server/ server/
-
-RUN cd client && npm run build
-RUN cd server && npm run build
+COPY client/ client/
+RUN npm run build -w client
+RUN npm run build -w server
 
 # --- Production stage ---
 FROM node:20-alpine
 
 WORKDIR /app
 
-COPY server/package.json server/package-lock.json* server/
-
-RUN cd server && npm install --omit=dev
+COPY package.json package-lock.json ./
+COPY server/package.json server/
+RUN npm ci -w server --omit=dev
 
 COPY --from=builder /app/server/dist server/dist
 COPY --from=builder /app/client/dist client/dist

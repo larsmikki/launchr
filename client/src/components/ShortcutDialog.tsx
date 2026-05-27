@@ -26,7 +26,7 @@ export default function ShortcutDialog({ shortcut, groups, defaultGroupId, onSav
   };
 
   return (
-    <Modal open onClose={onClose} title={shortcut ? 'Edit shortcut' : 'Add shortcut'} maxWidth="420px">
+    <Modal open onClose={onClose} title={shortcut ? 'Edit shortcut' : 'New link'} maxWidth="420px">
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="mb-1 block text-xs font-semibold uppercase tracking-wider" style={{ color: theme.text2 }}>

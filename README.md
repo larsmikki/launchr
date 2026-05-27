@@ -7,7 +7,7 @@ A lightweight, self-hosted web launcher. Organize your bookmarks into a drag-and
 [![ghcr.io](https://img.shields.io/badge/ghcr.io-larsmikki%2Flinky-blue?logo=github)](https://github.com/larsmikki/linky/pkgs/container/linky)
 [![Last Commit](https://img.shields.io/github/last-commit/larsmikki/linky)](https://github.com/larsmikki/linky/commits/main)
 
-![Linky screenshot](resources/screenshot.png)
+![Linky screenshot](screenshot.png)
 
 ## Getting started
 

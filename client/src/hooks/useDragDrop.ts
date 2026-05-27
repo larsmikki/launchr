@@ -1,6 +1,6 @@
 import React, { useRef, useCallback, Dispatch, SetStateAction } from 'react';
 import { Shortcut, Group } from '@/types';
-import { api } from '@/hooks/useApi';
+import { useAppData } from '@/hooks/useAppData';
 
 interface UseDragDropOptions {
   shortcuts: Shortcut[];
@@ -11,6 +11,7 @@ interface UseDragDropOptions {
 
 export function useDragDrop({ shortcuts, groups, setShortcuts, setGroups }: UseDragDropOptions) {
   const dragItem = useRef<{ type: 'shortcut' | 'group'; id: number } | null>(null);
+  const { updateLayout, updateShortcut } = useAppData();
 
   const clearDragging = useCallback(() => {
     document.querySelectorAll('.dragging').forEach(el => el.classList.remove('dragging'));
@@ -47,16 +48,15 @@ export function useDragDrop({ shortcuts, groups, setShortcuts, setGroups }: UseD
           const posMap = new Map(positions.map(p => [p.id, p.sort_order]));
           return prev.map(g => posMap.has(g.id) ? { ...g, sort_order: posMap.get(g.id)! } : g);
         });
-        await api.updateLayout({ groups: positions });
+        await updateLayout({ groups: positions });
       }
     } else if (type === 'shortcut') {
-      const updated = await api.updateShortcut(id, { group_id: targetGroupId });
-      setShortcuts(prev => prev.map(s => s.id === id ? updated : s));
+      await updateShortcut({ id, data: { group_id: targetGroupId } });
     }
 
     dragItem.current = null;
     clearDragging();
-  }, [groups, setGroups, setShortcuts, clearDragging]);
+  }, [groups, setGroups, updateLayout, updateShortcut, clearDragging]);
 
   const handleShortcutDragStart = useCallback((shortcutId: number, e: React.DragEvent) => {
     dragItem.current = { type: 'shortcut', id: shortcutId };
@@ -101,8 +101,8 @@ export function useDragDrop({ shortcuts, groups, setShortcuts, setGroups }: UseD
       const posMap = new Map(positions.map(p => [p.id, p.sort_order]));
       return prev.map(s => posMap.has(s.id) ? { ...s, sort_order: posMap.get(s.id)! } : s);
     });
-    await api.updateLayout({ shortcuts: positions });
-  }, [shortcuts, clearDragging, setShortcuts]);
+    await updateLayout({ shortcuts: positions });
+  }, [shortcuts, clearDragging, setShortcuts, updateLayout]);
 
   const handleShortcutDropEnd = useCallback(async (groupId: number, e: React.DragEvent) => {
     if (!dragItem.current || dragItem.current.type !== 'shortcut') return;
@@ -134,8 +134,8 @@ export function useDragDrop({ shortcuts, groups, setShortcuts, setGroups }: UseD
       const posMap = new Map(positions.map(p => [p.id, p.sort_order]));
       return prev.map(s => posMap.has(s.id) ? { ...s, sort_order: posMap.get(s.id)! } : s);
     });
-    await api.updateLayout({ shortcuts: positions });
-  }, [shortcuts, clearDragging, setShortcuts]);
+    await updateLayout({ shortcuts: positions });
+  }, [shortcuts, clearDragging, setShortcuts, updateLayout]);
 
   const handleDragEnd = useCallback(() => {
     clearDragging();

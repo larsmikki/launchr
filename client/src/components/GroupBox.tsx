@@ -16,7 +16,6 @@ interface Props {
   arrangeMode: boolean
   layoutMode: 'row' | 'column'
   linkTarget: string
-  onToggleCollapse: (groupId: number, newCollapsed: boolean) => void
   onEditGroup?: (group: Group) => void
   onDeleteGroup?: (groupId: number) => void
   onGroupDragStart?: (groupId: number, e: React.DragEvent) => void
@@ -37,7 +36,6 @@ export default React.memo(function GroupBox({
   arrangeMode,
   layoutMode,
   linkTarget,
-  onToggleCollapse,
   onEditGroup,
   onDeleteGroup,
   onGroupDragStart,
@@ -54,7 +52,6 @@ export default React.memo(function GroupBox({
   const [hovered, setHovered] = useState(false)
   const [dropEndActive, setDropEndActive] = useState(false)
   const [dragOverId, setDragOverId] = useState<number | 'end' | null>(null)
-  const isCollapsed = group.collapsed === 1
   const groupBg = theme.groupColors[groupIndex % theme.groupColors.length]
 
   const handleMouseEnter = useCallback(() => setHovered(true), [])
@@ -80,14 +77,6 @@ export default React.memo(function GroupBox({
       data-group-id={group.id}
     >
       <div className="group-header">
-        <button
-          type="button"
-          className="group-collapse-btn"
-          onClick={() => onToggleCollapse(group.id, !isCollapsed)}
-          aria-label={isCollapsed ? 'Expand group' : 'Collapse group'}
-        >
-          {isCollapsed ? '>' : 'v'}
-        </button>
         <span
           style={{ flex: 1, cursor: arrangeMode && onEditGroup ? 'pointer' : 'default', display: 'flex', alignItems: 'center', gap: '5px' }}
           onClick={arrangeMode && onEditGroup ? (e) => { e.stopPropagation(); onEditGroup(group) } : undefined}
@@ -106,50 +95,48 @@ export default React.memo(function GroupBox({
           </button>
         )}
       </div>
-      {!isCollapsed && (
-        <div
-          className={`group-body group-body-${layoutMode}`}
-          onDragEnd={() => setDragOverId(null)}
-        >
-          {shortcuts.map((s) => (
-            <React.Fragment key={s.id}>
-              {dragOverId === s.id && (
-                <div style={{
-                  width: '3px', alignSelf: 'stretch', flexShrink: 0,
-                  background: theme.accent, borderRadius: '2px', margin: '6px 2px',
-                }} />
-              )}
-              <ShortcutTile
-                shortcut={s}
-                arrangeMode={arrangeMode}
-                linkTarget={linkTarget}
-                onDragStart={onShortcutDragStart ? (e) => onShortcutDragStart(s.id, e) : undefined}
-                onDragEnter={arrangeMode ? (e) => { e.preventDefault(); setDragOverId(s.id) } : undefined}
-                onDragOver={arrangeMode ? onShortcutDragOver : undefined}
-                onDrop={arrangeMode && onShortcutDrop ? (e) => { setDragOverId(null); onShortcutDrop(s.id, e) } : undefined}
-                onContextMenu={onShortcutContextMenu ? (e) => onShortcutContextMenu(s.id, e) : undefined}
-              />
-            </React.Fragment>
-          ))}
-          {arrangeMode && onShortcutDropEnd && (
-            <>
-              {dragOverId === 'end' && (
-                <div style={{
-                  width: '3px', alignSelf: 'stretch', flexShrink: 0,
-                  background: theme.accent, borderRadius: '2px', margin: '6px 2px',
-                }} />
-              )}
-              <div
-                className={`shortcut-drop-end${dropEndActive ? ' shortcut-drop-end--active' : ''}`}
-                onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move' }}
-                onDragEnter={() => { setDropEndActive(true); setDragOverId('end') }}
-                onDragLeave={() => setDropEndActive(false)}
-                onDrop={(e) => { setDropEndActive(false); setDragOverId(null); onShortcutDropEnd(group.id, e) }}
-              />
-            </>
-          )}
-        </div>
-      )}
+      <div
+        className={`group-body group-body-${layoutMode}`}
+        onDragEnd={() => setDragOverId(null)}
+      >
+        {shortcuts.map((s) => (
+          <React.Fragment key={s.id}>
+            {dragOverId === s.id && (
+              <div style={{
+                width: '3px', alignSelf: 'stretch', flexShrink: 0,
+                background: theme.accent, borderRadius: '2px', margin: '6px 2px',
+              }} />
+            )}
+            <ShortcutTile
+              shortcut={s}
+              arrangeMode={arrangeMode}
+              linkTarget={linkTarget}
+              onDragStart={onShortcutDragStart ? (e) => onShortcutDragStart(s.id, e) : undefined}
+              onDragEnter={arrangeMode ? (e) => { e.preventDefault(); setDragOverId(s.id) } : undefined}
+              onDragOver={arrangeMode ? onShortcutDragOver : undefined}
+              onDrop={arrangeMode && onShortcutDrop ? (e) => { setDragOverId(null); onShortcutDrop(s.id, e) } : undefined}
+              onContextMenu={onShortcutContextMenu ? (e) => onShortcutContextMenu(s.id, e) : undefined}
+            />
+          </React.Fragment>
+        ))}
+        {arrangeMode && onShortcutDropEnd && (
+          <>
+            {dragOverId === 'end' && (
+              <div style={{
+                width: '3px', alignSelf: 'stretch', flexShrink: 0,
+                background: theme.accent, borderRadius: '2px', margin: '6px 2px',
+              }} />
+            )}
+            <div
+              className={`shortcut-drop-end${dropEndActive ? ' shortcut-drop-end--active' : ''}`}
+              onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move' }}
+              onDragEnter={() => { setDropEndActive(true); setDragOverId('end') }}
+              onDragLeave={() => setDropEndActive(false)}
+              onDrop={(e) => { setDropEndActive(false); setDragOverId(null); onShortcutDropEnd(group.id, e) }}
+            />
+          </>
+        )}
+      </div>
     </div>
   )
 })

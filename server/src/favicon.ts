@@ -1,6 +1,8 @@
 import fs from 'fs';
 import path from 'path';
-import { ICONS_DIR } from './db';
+import { config } from './config.js';
+
+const ICONS_DIR = config.iconsDir;
 
 async function fetchFavicon(url: string, shortcutId: number): Promise<string | null> {
   try {

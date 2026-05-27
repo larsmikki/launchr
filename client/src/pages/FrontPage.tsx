@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { api } from '@/hooks/useApi';
 import { Shortcut, Group } from '@/types';
 import { useAppData } from '@/hooks/useAppData';
 import { useDragDrop } from '@/hooks/useDragDrop';
@@ -20,7 +19,24 @@ const addGroupIcon = (
 export default function FrontPage() {
   const { theme } = useTheme();
   const { setOnNewLink, setOnEditLayout } = usePageActions();
-  const { shortcuts, setShortcuts, groups, setGroups, settings, ensureGroup } = useAppData();
+  const {
+    shortcuts,
+    setShortcuts,
+    groups,
+    setGroups,
+    settings,
+    fetchShortcuts,
+    ensureGroup,
+    createGroup,
+    updateGroup,
+    deleteGroup,
+    createShortcut,
+    updateShortcut,
+    deleteShortcut,
+    refreshFavicon,
+    uploadIcon,
+    removeIcon,
+  } = useAppData();
 
   const [arrangeMode, setArrangeMode] = useState(false);
 
@@ -88,70 +104,56 @@ export default function FrontPage() {
     return {};
   }, [layoutMode, columnExtraWidth]);
 
-  const handleToggleCollapse = useCallback((groupId: number, newCollapsed: boolean) => {
-    setGroups(prev => prev.map(g => g.id === groupId ? { ...g, collapsed: newCollapsed ? 1 : 0 } : g));
-    void api.updateGroup(groupId, { collapsed: newCollapsed ? 1 : 0 });
-  }, [setGroups]);
-
   const handleOpenEditGroup = useCallback((group: Group) => {
     setDialog({ type: 'group', group });
   }, []);
 
   const handleDeleteGroup = useCallback(async (groupId: number) => {
-    await api.deleteGroup(groupId);
-    setGroups(prev => prev.filter(g => g.id !== groupId));
-    setShortcuts(prev => prev.filter(s => s.group_id !== groupId));
-  }, [setGroups, setShortcuts]);
+    await deleteGroup(groupId);
+  }, [deleteGroup]);
 
   const handleSaveShortcut = useCallback(async (data: { title: string; url: string; group_id: number | null }) => {
     const groupId = data.group_id ?? await ensureGroup();
 
     if (dialog?.type === 'shortcut' && dialog.shortcut) {
-      const updated = await api.updateShortcut(dialog.shortcut.id, { ...data, group_id: groupId });
-      setShortcuts(prev => prev.map(s => s.id === dialog.shortcut!.id ? updated : s));
+      await updateShortcut({ id: dialog.shortcut.id, data: { ...data, group_id: groupId } });
     } else {
-      const created = await api.createShortcut({ ...data, group_id: groupId, grid_x: 0, grid_y: 0 });
+      const created = await createShortcut({ ...data, group_id: groupId, grid_x: 0, grid_y: 0 });
       if (created?.id) {
-        setShortcuts(prev => [...prev, created]);
         let attempts = 0;
         const poll = setInterval(async () => {
           attempts++;
-          const freshShortcuts = await api.getShortcuts();
+          const freshShortcuts = await fetchShortcuts();
           const sc = freshShortcuts.find((s) => s.id === created.id);
           if ((sc && sc.favicon_cached) || attempts >= 8) {
             clearInterval(poll);
             activePolls.current = activePolls.current.filter((p) => p !== poll);
           }
-          setShortcuts(freshShortcuts);
         }, 2000);
         activePolls.current.push(poll);
       }
     }
     setDialog(null);
-  }, [dialog, ensureGroup, setShortcuts]);
+  }, [createShortcut, dialog, ensureGroup, fetchShortcuts, updateShortcut]);
 
   const handleSaveGroup = useCallback(async (data: { title: string; color: string }) => {
     if (dialog?.type === 'group' && dialog.group) {
-      const updated = await api.updateGroup(dialog.group.id, data);
-      setGroups(prev => prev.map(g => g.id === dialog.group!.id ? updated : g));
+      await updateGroup({ id: dialog.group.id, data });
     } else {
-      const created = await api.createGroup(data);
-      setGroups(prev => [...prev, created]);
+      await createGroup(data);
     }
     setDialog(null);
-  }, [dialog, setGroups]);
+  }, [createGroup, dialog, updateGroup]);
 
   const handleDeleteShortcut = useCallback(async (id: number) => {
-    await api.deleteShortcut(id);
-    setShortcuts(prev => prev.filter(s => s.id !== id));
-  }, [setShortcuts]);
+    await deleteShortcut(id);
+  }, [deleteShortcut]);
 
   const handleRefreshFavicon = useCallback(async (id: number) => {
     showToast('Refreshing favicon...');
-    const updated = await api.refreshFavicon(id);
-    setShortcuts(prev => prev.map(s => s.id === id ? updated : s));
+    await refreshFavicon(id);
     showToast('Icon updated');
-  }, [showToast, setShortcuts]);
+  }, [refreshFavicon, showToast]);
 
   const handleUploadIcon = useCallback(async (id: number) => {
     const input = document.createElement('input');
@@ -161,21 +163,19 @@ export default function FrontPage() {
       const file = input.files?.[0];
       if (!file) return;
       try {
-        const updated = await api.uploadIcon(id, file);
-        setShortcuts(prev => prev.map(s => s.id === id ? updated : s));
+        await uploadIcon({ id, file });
       } catch (e) {
         console.error('[icon] Upload failed:', e);
       }
     };
     input.click();
-  }, [setShortcuts]);
+  }, [uploadIcon]);
 
   const handleRemoveIcon = useCallback(async (id: number) => {
     showToast('Removing icon...');
-    const updated = await api.removeIcon(id);
-    setShortcuts(prev => prev.map(s => s.id === id ? updated : s));
+    await removeIcon(id);
     showToast('Icon removed');
-  }, [showToast, setShortcuts]);
+  }, [removeIcon, showToast]);
 
   const handleConfirmDelete = useCallback(() => {
     if (!confirmDelete) return;
@@ -213,7 +213,6 @@ export default function FrontPage() {
             arrangeMode={arrangeMode}
             layoutMode={layoutMode}
             linkTarget={settings.link_target || '_blank'}
-            onToggleCollapse={handleToggleCollapse}
             onEditGroup={handleOpenEditGroup}
             onDeleteGroup={(groupId) => {
               const group = groups.find(g => g.id === groupId);

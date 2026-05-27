@@ -1,13 +1,9 @@
 import initSqlJs, { Database as SqlJsDatabase } from 'sql.js';
-import path from 'path';
 import fs from 'fs';
+import { config } from '../config.js';
 
-const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, '..', 'data');
-const ICONS_DIR = path.join(DATA_DIR, 'icons');
-const DB_PATH = path.join(DATA_DIR, 'linky.db');
-
-if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
-if (!fs.existsSync(ICONS_DIR)) fs.mkdirSync(ICONS_DIR, { recursive: true });
+if (!fs.existsSync(config.dataDir)) fs.mkdirSync(config.dataDir, { recursive: true });
+if (!fs.existsSync(config.iconsDir)) fs.mkdirSync(config.iconsDir, { recursive: true });
 
 let db: SqlJsDatabase | undefined;
 
@@ -20,8 +16,8 @@ function requireDb(): SqlJsDatabase {
 async function initDb(): Promise<SqlJsDatabase> {
   const SQL = await initSqlJs();
 
-  if (fs.existsSync(DB_PATH)) {
-    const buffer = fs.readFileSync(DB_PATH);
+  if (fs.existsSync(config.dbPath)) {
+    const buffer = fs.readFileSync(config.dbPath);
     db = new SQL.Database(buffer);
   } else {
     db = new SQL.Database();
@@ -83,7 +79,7 @@ function saveDb() {
   if (db) {
     const data = db.export();
     const buffer = Buffer.from(data);
-    fs.writeFileSync(DB_PATH, buffer);
+    fs.writeFileSync(config.dbPath, buffer);
   }
 }
 
@@ -131,7 +127,4 @@ function runInsert(sql: string, params: any[] = []): number {
   return id;
 }
 
-// #9: lastInsertId() removed — it was exported but never used externally
-//     and could return stale values if called after a subsequent insert.
-
-export { initDb, getDb, saveDb, queryAll, queryOne, runSql, execSql, runInsert, ICONS_DIR, DATA_DIR };
+export { initDb, getDb, saveDb, queryAll, queryOne, runSql, execSql, runInsert };

@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Settings } from '@/types';
-import { api } from '@/hooks/useApi';
+import { api } from '@/api';
 import { useTheme } from '@/contexts/ThemeContext';
 import ThemePicker from '@/components/ThemePicker';
 import { Button, Surface, useToast } from '@/components/ui';

@@ -1,5 +1,5 @@
 @import "tailwindcss";
-@import "./design-tokens.css";
+@import "./tokens.css";
 
 :root {
   --theme-accent: #2563eb;
@@ -176,7 +176,6 @@ button:disabled {
   font-weight: 700;
 }
 
-.group-collapse-btn,
 .group-header-btn {
   border-radius: 6px;
   background: transparent;
@@ -184,11 +183,6 @@ button:disabled {
   transition: color 150ms ease, background 150ms ease, opacity 150ms ease;
 }
 
-.group-collapse-btn {
-  padding: 2px 4px;
-}
-
-.group-collapse-btn:hover,
 .group-header-btn:hover {
   background: rgb(from var(--color-accent) r g b / 0.10);
   color: var(--theme-accent);

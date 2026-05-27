@@ -8,10 +8,6 @@ server/dist
 .git
 *.md
 
-# Root package files (Dockerfile uses client/ and server/ directly)
-package.json
-package-lock.json
-
 # Environment files (never include secrets in build context)
 .env
 .env.*

@@ -1,6 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { useAppData } from '@/hooks/useAppData';
-import { api } from '@/hooks/useApi';
 import { Settings } from '@/types';
 import Layout from '@/components/Layout';
 import FrontPage from '@/pages/FrontPage';
@@ -8,11 +7,10 @@ import SettingsPage from '@/pages/SettingsPage';
 import DonatePage from '@/pages/DonatePage';
 
 function AppRoutes() {
-  const { settings, reload } = useAppData();
+  const { settings, updateSettings } = useAppData();
 
   const handleSaveSettings = async (data: Partial<Settings>) => {
-    await api.updateSettings(data);
-    reload();
+    await updateSettings(data);
   };
 
   return (

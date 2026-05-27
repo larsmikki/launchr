@@ -35,3 +35,12 @@ Thumbs.db
 tasks/
 # Added by code-review-graph
 .code-review-graph/
+
+# === Fleet structure baseline (shared/STRUCTURE.md §7) ===
+data/
+*.db
+dist-server
+cache/
+temp/
+test_album/
+*.bat
