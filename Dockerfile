@@ -1,4 +1,4 @@
-FROM node:20-alpine AS builder
+FROM node:26-alpine AS builder
 
 RUN apk add --no-cache python3 make g++
 
@@ -16,7 +16,7 @@ RUN npm run build -w client
 RUN npm run build -w server
 
 # --- Production stage ---
-FROM node:20-alpine
+FROM node:26-alpine
 
 WORKDIR /app
 

@@ -75,10 +75,10 @@ export default function Layout() {
                 variant="ghost"
                 size="sm"
                 onClick={onNewLink}
-                className="hidden sm:inline-flex"
+                aria-label="New link"
                 leadingIcon={<NewLinkIcon />}
               >
-                New link
+                <span className="hidden sm:inline">New link</span>
               </Button>
             )}
             {onEditLayout && (
