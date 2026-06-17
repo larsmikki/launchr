@@ -1,6 +1,7 @@
 import initSqlJs, { Database as SqlJsDatabase } from 'sql.js';
 import fs from 'fs';
 import { config } from '../config.js';
+import type { SqlParam } from './types.js';
 
 if (!fs.existsSync(config.dataDir)) fs.mkdirSync(config.dataDir, { recursive: true });
 if (!fs.existsSync(config.iconsDir)) fs.mkdirSync(config.iconsDir, { recursive: true });
@@ -70,55 +71,72 @@ async function initDb(): Promise<SqlJsDatabase> {
   for (const [key, value] of defaults) {
     db.run('INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)', [key, value]);
   }
-  saveDb();
+  flushDb();
 
   return db;
 }
 
+// sql.js has no incremental writes — every save exports the whole database.
+// Coalesce bursts of writes into one disk write, at most SAVE_DELAY_MS after
+// the first change. The timer is unref'd so it never holds the process open;
+// flushDb() on exit/signals covers anything still pending.
+const SAVE_DELAY_MS = 500;
+let saveTimer: NodeJS.Timeout | null = null;
+
 function saveDb() {
-  if (db) {
-    const data = db.export();
-    const buffer = Buffer.from(data);
-    fs.writeFileSync(config.dbPath, buffer);
-  }
+  if (saveTimer) return;
+  saveTimer = setTimeout(flushDb, SAVE_DELAY_MS);
+  saveTimer.unref?.();
 }
+
+// Immediately write the database to disk, cancelling any pending save
+function flushDb() {
+  if (saveTimer) {
+    clearTimeout(saveTimer);
+    saveTimer = null;
+  }
+  if (!db) return;
+  fs.writeFileSync(config.dbPath, Buffer.from(db.export()));
+}
+
+process.on('exit', flushDb);
 
 function getDb(): SqlJsDatabase {
   return requireDb();
 }
 
 // Helper: run query and return all rows as objects
-function queryAll(sql: string, params: any[] = []): any[] {
+function queryAll<T = Record<string, unknown>>(sql: string, params: SqlParam[] = []): T[] {
   const d = requireDb();
   const stmt = d.prepare(sql);
   if (params.length > 0) stmt.bind(params);
-  const results: any[] = [];
+  const results: T[] = [];
   while (stmt.step()) {
-    results.push(stmt.getAsObject());
+    results.push(stmt.getAsObject() as T);
   }
   stmt.free();
   return results;
 }
 
 // Helper: run query and return first row as object
-function queryOne(sql: string, params: any[] = []): any | null {
-  const rows = queryAll(sql, params);
+function queryOne<T = Record<string, unknown>>(sql: string, params: SqlParam[] = []): T | null {
+  const rows = queryAll<T>(sql, params);
   return rows.length > 0 ? rows[0] : null;
 }
 
-// Helper: run statement (INSERT/UPDATE/DELETE) and flush to disk
-function runSql(sql: string, params: any[] = []): void {
+// Helper: run statement (INSERT/UPDATE/DELETE) and schedule a flush to disk
+function runSql(sql: string, params: SqlParam[] = []): void {
   requireDb().run(sql, params);
   saveDb();
 }
 
 // #6: No-flush variant — use for batch operations, call saveDb() once after
-function execSql(sql: string, params: any[] = []): void {
+function execSql(sql: string, params: SqlParam[] = []): void {
   requireDb().run(sql, params);
 }
 
 // Run INSERT and return the new row id
-function runInsert(sql: string, params: any[] = []): number {
+function runInsert(sql: string, params: SqlParam[] = []): number {
   const d = requireDb();
   d.run(sql, params);
   const result = d.exec('SELECT last_insert_rowid() as id');
@@ -127,4 +145,19 @@ function runInsert(sql: string, params: any[] = []): number {
   return id;
 }
 
-export { initDb, getDb, saveDb, queryAll, queryOne, runSql, execSql, runInsert };
+// Run a set of statements atomically — rolls back on any thrown error
+function transaction<T>(fn: () => T): T {
+  const d = requireDb();
+  d.run('BEGIN TRANSACTION');
+  try {
+    const result = fn();
+    d.run('COMMIT');
+    saveDb();
+    return result;
+  } catch (e) {
+    d.run('ROLLBACK');
+    throw e;
+  }
+}
+
+export { initDb, getDb, saveDb, flushDb, queryAll, queryOne, runSql, execSql, runInsert, transaction };

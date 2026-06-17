@@ -1,13 +1,13 @@
-# Linky
+# Linkpad
 
 A lightweight, self-hosted web launcher. Organize your bookmarks into a drag-and-drop grid with collapsible groups and auto-fetched favicons.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Docker Hub](https://img.shields.io/badge/Docker%20Hub-larsmikki%2Flinky-blue?logo=docker)](https://hub.docker.com/r/larsmikki/linky)
-[![ghcr.io](https://img.shields.io/badge/ghcr.io-larsmikki%2Flinky-blue?logo=github)](https://github.com/larsmikki/linky/pkgs/container/linky)
-[![Last Commit](https://img.shields.io/github/last-commit/larsmikki/linky)](https://github.com/larsmikki/linky/commits/main)
+[![Docker Hub](https://img.shields.io/badge/Docker%20Hub-larsmikki%2Flinkpad-blue?logo=docker)](https://hub.docker.com/r/larsmikki/linkpad)
+[![ghcr.io](https://img.shields.io/badge/ghcr.io-larsmikki%2Flinkpad-blue?logo=github)](https://github.com/larsmikki/linkpad/pkgs/container/linkpad)
+[![Last Commit](https://img.shields.io/github/last-commit/larsmikki/linkpad)](https://github.com/larsmikki/linkpad/commits/main)
 
-![Linky screenshot](screenshot.png)
+![Linkpad screenshot](screenshot.png)
 
 ## Getting started
 
@@ -19,17 +19,17 @@ Works on Synology, Unraid, TrueNAS, QNAP, Proxmox, or a plain Docker host.
 
 ```bash
 docker run -d \
-  --name linky \
+  --name linkpad \
   -p 3020:3020 \
-  -v linky-data:/app/data \
+  -v linkpad-data:/app/data \
   --restart unless-stopped \
-  larsmikki/linky:latest
+  larsmikki/linkpad:latest
 ```
 
 Or pull the published Compose file:
 
 ```bash
-curl -O https://raw.githubusercontent.com/larsmikki/linky/main/docker-compose.yml
+curl -O https://raw.githubusercontent.com/larsmikki/linkpad/main/docker-compose.yml
 docker compose up -d
 ```
 
@@ -38,8 +38,8 @@ docker compose up -d
 Requires [Git for Windows](https://git-scm.com/download/win) and [Node.js 20+](https://nodejs.org/).
 
 ```powershell
-git clone https://github.com/larsmikki/linky.git
-cd linky
+git clone https://github.com/larsmikki/linkpad.git
+cd linkpad
 npm run setup
 npm run dev
 ```
@@ -50,8 +50,8 @@ For a production build: `npm run build && npm start`.
 
 ```bash
 brew install node git
-git clone https://github.com/larsmikki/linky.git
-cd linky
+git clone https://github.com/larsmikki/linkpad.git
+cd linkpad
 npm run setup
 npm run dev
 ```
@@ -66,8 +66,8 @@ Debian/Ubuntu:
 curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
 sudo apt-get install -y nodejs git
 
-git clone https://github.com/larsmikki/linky.git
-cd linky
+git clone https://github.com/larsmikki/linkpad.git
+cd linkpad
 npm run setup
 npm run dev
 ```
@@ -105,7 +105,7 @@ For a production build: `npm run build && npm start`.
 
 ## Data Persistence
 
-Data is stored in a Docker volume (`linky-data`) at `/app/data` inside the container. Back up via Settings → Export, or copy the volume contents directly.
+Data is stored in a Docker volume (`linkpad-data`) at `/app/data` inside the container. Back up via Settings → Export, or copy the volume contents directly.
 
 ## Tech Stack
 
@@ -116,4 +116,4 @@ Data is stored in a Docker volume (`linky-data`) at `/app/data` inside the conta
 
 ## Support
 
-If you find Linky useful, consider [buying me a coffee](https://buymeacoffee.com/larsmikki). Linky is and always will be free, open source, and self-hosted.
+If you find Linkpad useful, consider [buying me a coffee](https://buymeacoffee.com/larsmikki). Linkpad is and always will be free, open source, and self-hosted.

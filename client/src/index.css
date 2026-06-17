@@ -141,9 +141,8 @@ button:disabled {
 
 .shortcut-title {
   max-width: 80px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: break-word;
+  word-break: break-word;
   color: var(--theme-text2);
   font-size: 11px;
   font-weight: 500;
@@ -207,6 +206,7 @@ button:disabled {
 .group-body-row {
   display: flex;
   flex-wrap: wrap;
+  align-items: flex-start;
   padding: 4px 8px 12px;
   gap: 2px;
 }

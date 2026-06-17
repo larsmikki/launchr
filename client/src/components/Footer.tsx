@@ -8,7 +8,7 @@ export default function Footer() {
     <footer style={{ borderTop: `1px solid ${theme.border}`, background: theme.surface }}>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-12 flex items-center justify-between">
         <span className="text-xs" style={{ color: theme.text2 }}>
-          © {new Date().getFullYear()} Linky
+          © {new Date().getFullYear()} Linkpad
         </span>
         <div className="flex items-center gap-4">
           <Link

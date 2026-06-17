@@ -1,6 +1,6 @@
 {
-  "name": "Linky",
-  "short_name": "Linky",
+  "name": "Linkpad",
+  "short_name": "Linkpad",
   "description": "Self-hosted browser homepage for organizing links",
   "start_url": "/",
   "display": "standalone",

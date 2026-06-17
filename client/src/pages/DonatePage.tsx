@@ -23,7 +23,7 @@ export default function DonatePage() {
     <div className="min-h-full">
       <div className="max-w-2xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-2xl font-extrabold tracking-tight text-text">Support Linky</h1>
+          <h1 className="text-2xl font-extrabold tracking-tight text-text">Support Linkpad</h1>
           <p className="text-sm mt-0.5 text-text2">
             I build privacy-first, self-hosted tools - no subscriptions, no ads, no tracking. Your data stays yours.
           </p>
@@ -32,7 +32,7 @@ export default function DonatePage() {
         <Surface className="p-6 mb-5">
           <h2 className="text-base font-bold mb-1 text-text">What you get</h2>
           <p className="text-xs mb-5 text-text2">
-            Linky is and always will be free, open source, and self-hosted.
+            Linkpad is and always will be free, open source, and self-hosted.
           </p>
           <div className="flex flex-wrap gap-2">
             {[
@@ -92,7 +92,7 @@ export default function DonatePage() {
         <Surface className="p-6">
           <h2 className="text-base font-bold mb-1 text-text">Thank you</h2>
           <p className="text-xs m-0 text-text2">
-            Every bit of support helps keep Linky free for everyone.
+            Every bit of support helps keep Linkpad free for everyone.
           </p>
         </Surface>
       </div>

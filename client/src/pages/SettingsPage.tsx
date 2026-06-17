@@ -3,7 +3,7 @@ import { Settings } from '@/types';
 import { api } from '@/api';
 import { useTheme } from '@/contexts/ThemeContext';
 import ThemePicker from '@/components/ThemePicker';
-import { Button, Surface, useToast } from '@/components/ui';
+import { Button, ConfirmDialog, OptionCardGroup, Surface, useToast } from '@/components/ui';
 
 interface Props {
   settings: Settings;
@@ -16,6 +16,7 @@ export default function SettingsPage({ settings, onSave }: Props) {
   const [layoutMode, setLayoutMode] = useState<'row' | 'column'>(settings.layout_mode || 'row');
   const [columnExtraWidth, setColumnExtraWidth] = useState(Number(settings.column_extra_width) || 0);
   const [linkTarget, setLinkTarget] = useState(settings.link_target || '_blank');
+  const [pendingImport, setPendingImport] = useState<unknown | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Save a patch merged with current state
@@ -34,14 +35,15 @@ export default function SettingsPage({ settings, onSave }: Props) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `linky-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = `linkpad-backup-${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
     URL.revokeObjectURL(url);
     addToast('Backup exported', 'success');
   };
 
-  const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImportFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    e.target.value = '';
     if (!file) return;
     const text = await file.text();
     let data: unknown;
@@ -59,133 +61,103 @@ export default function SettingsPage({ settings, onSave }: Props) {
       addToast('Invalid backup file', 'error');
       return;
     }
+    // Importing wipes everything — make the user confirm before proceeding
+    setPendingImport(data);
+  };
+
+  const handleConfirmImport = async () => {
     try {
-      await api.importData(data);
+      await api.importData(pendingImport);
       addToast('Backup imported', 'success');
       window.location.reload();
     } catch (err) {
       addToast(`Import failed. ${err instanceof Error ? err.message : 'Try again.'}`, 'error');
-    } finally {
-      e.target.value = '';
     }
   };
+
+  const linkTargetOptions = [
+    {
+      value: '_blank' as const,
+      label: 'New tab',
+      description: 'Opens links in a new browser tab',
+      preview: (
+        <div className="flex items-center justify-center h-full gap-1">
+          <div className="h-8 w-8 rounded border-2" style={{ borderColor: theme.surface2 }} />
+          <div className="h-8 w-8 rounded border-2 ml-2" style={{ borderColor: theme.accent, background: `${theme.accent}15` }} />
+        </div>
+      ),
+    },
+    {
+      value: '_self' as const,
+      label: 'Same window',
+      description: 'Opens links in the current tab',
+      preview: (
+        <div className="flex items-center justify-center h-full gap-1">
+          <div className="h-8 w-8 rounded border-2" style={{ borderColor: theme.accent, background: `${theme.accent}15` }} />
+        </div>
+      ),
+    },
+  ] as const;
+
+  const layoutOptions = [
+    {
+      value: 'row' as const,
+      label: 'Rows',
+      description: 'Groups stacked vertically',
+      preview: (
+        <div className="h-full flex flex-col justify-center space-y-1.5">
+          <div className="h-2 rounded-sm" style={{ background: theme.surface2 }} />
+          <div className="h-2 rounded-sm" style={{ background: theme.surface2, width: '80%' }} />
+          <div className="h-2 rounded-sm" style={{ background: theme.surface2, width: '60%' }} />
+        </div>
+      ),
+    },
+    {
+      value: 'column' as const,
+      label: 'Columns',
+      description: 'Groups arranged side by side',
+      preview: (
+        <div className="flex items-center justify-center h-full gap-1">
+          {Array.from({ length: 6 }, (_, i) => (
+            <div key={i} className="h-8 w-2.5 rounded-sm" style={{ background: theme.surface2 }} />
+          ))}
+        </div>
+      ),
+    },
+  ] as const;
 
   return (
     <div className="min-h-full select-auto">
       <div className="max-w-2xl mx-auto">
         <div className="mb-8">
           <h1 className="text-2xl font-extrabold tracking-tight text-text">Settings</h1>
-          <p className="text-sm mt-0.5 text-text2">Customize your Linky experience.</p>
+          <p className="text-sm mt-0.5 text-text2">Customize your Linkpad experience.</p>
         </div>
 
         <Surface className="p-6 mb-5">
           <h2 className="text-base font-bold mb-1 text-text">Themes</h2>
-          <p className="text-xs mb-5 text-text2">Choose how Linky looks to you.</p>
+          <p className="text-xs mb-5 text-text2">Choose how Linkpad looks to you.</p>
           <ThemePicker />
         </Surface>
 
         <Surface className="p-6 mb-5">
           <h2 className="text-base font-bold mb-1 text-text">Appearance</h2>
           <p className="text-xs mb-5 text-text2">Choose how links open.</p>
-          <div className="grid gap-3 sm:grid-cols-2">
-            {([
-              {
-                value: '_blank' as const,
-                label: 'New tab',
-                description: 'Opens links in a new browser tab',
-                preview: (
-                  <div className="flex items-center justify-center h-full gap-1">
-                    <div className="h-8 w-8 rounded border-2" style={{ borderColor: theme.surface2 }} />
-                    <div className="h-8 w-8 rounded border-2 ml-2" style={{ borderColor: theme.accent, background: `${theme.accent}15` }} />
-                  </div>
-                ),
-              },
-              {
-                value: '_self' as const,
-                label: 'Same window',
-                description: 'Opens links in the current tab',
-                preview: (
-                  <div className="flex items-center justify-center h-full gap-1">
-                    <div className="h-8 w-8 rounded border-2" style={{ borderColor: theme.accent, background: `${theme.accent}15` }} />
-                  </div>
-                ),
-              },
-            ] as const).map(({ value, label, description, preview }) => (
-              <button
-                key={value}
-                onClick={() => { setLinkTarget(value); save({ link_target: value }); }}
-                className="flex flex-col gap-3 p-4 rounded-xl text-left transition-opacity hover:opacity-90"
-                style={{
-                  border: `1px solid ${linkTarget === value ? theme.accent : theme.border}`,
-                  background: linkTarget === value ? `${theme.accent}08` : theme.surface2,
-                  boxShadow: linkTarget === value ? `0 0 0 3px ${theme.accent}15` : 'none',
-                }}
-              >
-                <div className="w-full rounded-lg p-3" style={{ background: theme.surface, border: `1px solid ${theme.border}`, minHeight: '60px' }}>
-                  {preview}
-                </div>
-                <div>
-                  <p className="text-sm font-semibold" style={{ color: theme.text }}>{label}</p>
-                  <p className="text-xs mt-0.5" style={{ color: theme.text2 }}>{description}</p>
-                </div>
-              </button>
-            ))}
-          </div>
+          <OptionCardGroup
+            options={linkTargetOptions}
+            value={linkTarget as '_blank' | '_self'}
+            onChange={(value) => { setLinkTarget(value); save({ link_target: value }); }}
+          />
         </Surface>
 
         <Surface className="p-6 mb-5">
           <h2 className="text-base font-bold mb-1 text-text">Layout</h2>
           <p className="text-xs mb-5 text-text2">Arrange your groups as rows or columns.</p>
-          <div className="grid gap-3 sm:grid-cols-2">
-            {([
-              {
-                value: 'row' as const,
-                label: 'Rows',
-                description: 'Groups stacked vertically',
-                preview: (
-                  <div className="h-full flex flex-col justify-center space-y-1.5">
-                    <div className="h-2 rounded-sm" style={{ background: theme.surface2 }} />
-                    <div className="h-2 rounded-sm" style={{ background: theme.surface2, width: '80%' }} />
-                    <div className="h-2 rounded-sm" style={{ background: theme.surface2, width: '60%' }} />
-                  </div>
-                ),
-              },
-              {
-                value: 'column' as const,
-                label: 'Columns',
-                description: 'Groups arranged side by side',
-                preview: (
-                  <div className="flex items-center justify-center h-full gap-1">
-                    <div className="h-8 w-2.5 rounded-sm" style={{ background: theme.surface2 }} />
-                    <div className="h-8 w-2.5 rounded-sm" style={{ background: theme.surface2 }} />
-                    <div className="h-8 w-2.5 rounded-sm" style={{ background: theme.surface2 }} />
-                    <div className="h-8 w-2.5 rounded-sm" style={{ background: theme.surface2 }} />
-                    <div className="h-8 w-2.5 rounded-sm" style={{ background: theme.surface2 }} />
-                    <div className="h-8 w-2.5 rounded-sm" style={{ background: theme.surface2 }} />
-                  </div>
-                ),
-              },
-            ] as const).map(({ value, label, description, preview }) => (
-              <button
-                key={value}
-                onClick={() => { setLayoutMode(value); save({ layout_mode: value }); }}
-                className="flex flex-col gap-3 p-4 rounded-xl text-left transition-opacity hover:opacity-90"
-                style={{
-                  border: `1px solid ${layoutMode === value ? theme.accent : theme.border}`,
-                  background: layoutMode === value ? `${theme.accent}08` : theme.surface2,
-                  boxShadow: layoutMode === value ? `0 0 0 3px ${theme.accent}15` : 'none',
-                }}
-              >
-                <div className="w-full rounded-lg p-3" style={{ background: theme.surface, border: `1px solid ${theme.border}`, minHeight: '60px' }}>
-                  {preview}
-                </div>
-                <div>
-                  <p className="text-sm font-semibold" style={{ color: theme.text }}>{label}</p>
-                  <p className="text-xs mt-0.5" style={{ color: theme.text2 }}>{description}</p>
-                </div>
-              </button>
-            ))}
-          </div>
+          <OptionCardGroup
+            options={layoutOptions}
+            value={layoutMode}
+            onChange={(value) => { setLayoutMode(value); save({ layout_mode: value }); }}
+          />
 
           {layoutMode === 'column' && (
             <div className="mt-5">
@@ -226,9 +198,19 @@ export default function SettingsPage({ settings, onSave }: Props) {
             >
               Import backup
             </Button>
-            <input ref={fileInputRef} type="file" accept=".json" className="hidden" onChange={handleImport} />
+            <input ref={fileInputRef} type="file" accept=".json" className="hidden" onChange={handleImportFile} />
           </div>
         </Surface>
+
+        <ConfirmDialog
+          open={pendingImport !== null}
+          title="Replace all data?"
+          message="Importing this backup will replace all current links, groups, and settings. This cannot be undone."
+          confirmLabel="Import backup"
+          destructive
+          onConfirm={() => void handleConfirmImport()}
+          onClose={() => setPendingImport(null)}
+        />
 
       </div>
     </div>

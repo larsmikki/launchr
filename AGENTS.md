@@ -4,7 +4,7 @@ This file provides guidance to Codex (Codex.ai/code) when working with code in t
 
 ## Project Overview
 
-**Linky** is a self-hosted web launcher — a browser homepage for organizing URLs into a drag-and-drop grid with auto-fetched favicons. Monorepo with a React/Vite frontend and Express/TypeScript backend.
+**Linkpad** is a self-hosted web launcher — a browser homepage for organizing URLs into a drag-and-drop grid with auto-fetched favicons. Monorepo with a React/Vite frontend and Express/TypeScript backend.
 
 ## Commands
 
@@ -41,7 +41,7 @@ docker-compose up   # Full containerized deployment
 ### Key Data Flow
 1. Frontend (`client/src/hooks/useApi.ts`) calls REST endpoints on the Express server
 2. Server (`server/src/routes.ts`) updates the SQLite DB via `server/src/db.ts`
-3. DB is held in memory (sql.js) and flushed to `server/data/linky.db` after each write
+3. DB is held in memory (sql.js) and flushed to `server/data/data.db` after each write
 4. Frontend refreshes state from server responses or triggers a full reload
 
 ### Database Schema (3 tables)

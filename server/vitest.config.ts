@@ -9,7 +9,7 @@ export default defineConfig({
     include: ['tests/**/*.test.ts'],
     setupFiles: ['./tests/setup.ts'],
     env: {
-      DATA_DIR: path.join(os.tmpdir(), 'linky-test'),
+      DATA_DIR: path.join(os.tmpdir(), 'test-data'),
     },
   },
 });

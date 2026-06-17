@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Shortcut, Group } from '@/types';
 import { useAppData } from '@/hooks/useAppData';
 import { useDragDrop } from '@/hooks/useDragDrop';
@@ -8,7 +8,7 @@ import GroupDialog from '@/components/GroupDialog';
 import ContextMenu from '@/components/ContextMenu';
 import { useTheme } from '@/contexts/ThemeContext';
 import { usePageActions } from '@/contexts/PageActionsContext';
-import { ConfirmDialog, useToast } from '@/components/ui';
+import { Button, ConfirmDialog, useToast } from '@/components/ui';
 
 const addGroupIcon = (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -25,7 +25,7 @@ export default function FrontPage() {
     groups,
     setGroups,
     settings,
-    fetchShortcuts,
+    isLoading,
     ensureGroup,
     createGroup,
     updateGroup,
@@ -58,12 +58,6 @@ export default function FrontPage() {
   }, []);
 
   const { addToast } = useToast();
-  const showToast = useCallback((msg: string) => addToast(msg), [addToast]);
-
-  const activePolls = useRef<ReturnType<typeof setInterval>[]>([]);
-  useEffect(() => {
-    return () => { activePolls.current.forEach(clearInterval); };
-  }, []);
 
   const drag = useDragDrop({ shortcuts, groups, setShortcuts, setGroups });
 
@@ -118,23 +112,11 @@ export default function FrontPage() {
     if (dialog?.type === 'shortcut' && dialog.shortcut) {
       await updateShortcut({ id: dialog.shortcut.id, data: { ...data, group_id: groupId } });
     } else {
-      const created = await createShortcut({ ...data, group_id: groupId, grid_x: 0, grid_y: 0 });
-      if (created?.id) {
-        let attempts = 0;
-        const poll = setInterval(async () => {
-          attempts++;
-          const freshShortcuts = await fetchShortcuts();
-          const sc = freshShortcuts.find((s) => s.id === created.id);
-          if ((sc && sc.favicon_cached) || attempts >= 8) {
-            clearInterval(poll);
-            activePolls.current = activePolls.current.filter((p) => p !== poll);
-          }
-        }, 2000);
-        activePolls.current.push(poll);
-      }
+      // useAppData polls until the background favicon fetch completes
+      await createShortcut({ ...data, group_id: groupId, grid_x: 0, grid_y: 0 });
     }
     setDialog(null);
-  }, [createShortcut, dialog, ensureGroup, fetchShortcuts, updateShortcut]);
+  }, [createShortcut, dialog, ensureGroup, updateShortcut]);
 
   const handleSaveGroup = useCallback(async (data: { title: string; color: string }) => {
     if (dialog?.type === 'group' && dialog.group) {
@@ -150,10 +132,21 @@ export default function FrontPage() {
   }, [deleteShortcut]);
 
   const handleRefreshFavicon = useCallback(async (id: number) => {
-    showToast('Refreshing favicon...');
-    await refreshFavicon(id);
-    showToast('Icon updated');
-  }, [refreshFavicon, showToast]);
+    addToast('Refreshing favicon...');
+    const previousIconPath = shortcuts.find((s) => s.id === id)?.icon_path ?? null;
+    try {
+      // The server keeps the old icon when no favicon is found, so a
+      // changed icon_path is the only reliable success signal
+      const updated = await refreshFavicon(id);
+      if (updated.icon_path && updated.icon_path !== previousIconPath) {
+        addToast('Icon updated', 'success');
+      } else {
+        addToast('No favicon found for this site', 'error');
+      }
+    } catch {
+      addToast('Favicon refresh failed', 'error');
+    }
+  }, [addToast, refreshFavicon, shortcuts]);
 
   const handleUploadIcon = useCallback(async (id: number) => {
     const input = document.createElement('input');
@@ -164,18 +157,22 @@ export default function FrontPage() {
       if (!file) return;
       try {
         await uploadIcon({ id, file });
-      } catch (e) {
-        console.error('[icon] Upload failed:', e);
+        addToast('Icon uploaded', 'success');
+      } catch {
+        addToast('Icon upload failed', 'error');
       }
     };
     input.click();
-  }, [uploadIcon]);
+  }, [addToast, uploadIcon]);
 
   const handleRemoveIcon = useCallback(async (id: number) => {
-    showToast('Removing icon...');
-    await removeIcon(id);
-    showToast('Icon removed');
-  }, [removeIcon, showToast]);
+    try {
+      await removeIcon(id);
+      addToast('Icon removed', 'success');
+    } catch {
+      addToast('Failed to remove icon', 'error');
+    }
+  }, [addToast, removeIcon]);
 
   const handleConfirmDelete = useCallback(() => {
     if (!confirmDelete) return;
@@ -201,8 +198,40 @@ export default function FrontPage() {
     ];
   }, [contextMenu, shortcuts, handleUploadIcon, handleRefreshFavicon, handleRemoveIcon]);
 
+  const showEmptyState = !isLoading && sortedGroups.length === 0 && !arrangeMode;
+
   return (
     <>
+      {showEmptyState ? (
+      <div className="flex flex-col items-center justify-center text-center px-6" style={{ minHeight: '60vh' }}>
+        <div
+          className="flex items-center justify-center w-16 h-16 rounded-2xl mb-5"
+          style={{ background: `${theme.accent}15`, color: theme.accent }}
+        >
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+          </svg>
+        </div>
+        <h2 className="text-xl font-extrabold tracking-tight" style={{ color: theme.text }}>
+          Welcome to Linkpad
+        </h2>
+        <p className="text-sm mt-1.5 max-w-sm" style={{ color: theme.text2 }}>
+          Your launcher is empty. Add your first link, or create a group to organize them.
+        </p>
+        <div className="flex flex-wrap justify-center gap-3 mt-6">
+          <Button variant="primary" size="lg" onClick={() => setDialog({ type: 'shortcut' })}>
+            Add your first link
+          </Button>
+          <Button size="lg" onClick={() => setDialog({ type: 'group' })}>
+            Create a group
+          </Button>
+        </div>
+        <p className="text-xs mt-6" style={{ color: theme.text2, opacity: 0.8 }}>
+          Tip: right-click (or long-press on touch devices) anywhere to add links and groups any time.
+        </p>
+      </div>
+      ) : (
       <div className={`desktop-layout layout-${layoutMode}`} style={layoutStyle}>
         {sortedGroups.map((g, idx) => (
           <GroupBox
@@ -248,6 +277,7 @@ export default function FrontPage() {
           </button>
         )}
       </div>
+      )}
 
       {dialog?.type === 'shortcut' && (
         <ShortcutDialog

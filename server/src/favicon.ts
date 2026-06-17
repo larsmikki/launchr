@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { config } from './config.js';
+import { log } from './logger.js';
 
 const ICONS_DIR = config.iconsDir;
 
@@ -21,7 +22,7 @@ async function fetchFavicon(url: string, shortcutId: number): Promise<string | n
     // First try to parse HTML for link[rel=icon]
     try {
       const res = await fetch(origin, {
-        headers: { 'User-Agent': 'Mozilla/5.0 (compatible; Linky/1.0)' },
+        headers: { 'User-Agent': 'Mozilla/5.0 (compatible; Bot/1.0)' },
         signal: AbortSignal.timeout(8000),
         redirect: 'follow',
       });
@@ -31,7 +32,7 @@ async function fetchFavicon(url: string, shortcutId: number): Promise<string | n
         candidates.unshift(...iconUrls);
       }
     } catch (e) {
-      console.log(`[favicon] Failed to fetch HTML from ${origin}:`, (e as Error).message);
+      log.debug(`[favicon] Failed to fetch HTML from ${origin}:`, (e as Error).message);
     }
 
     // Also try Google's favicon service as a reliable fallback
@@ -40,7 +41,7 @@ async function fetchFavicon(url: string, shortcutId: number): Promise<string | n
     for (const candidateUrl of candidates) {
       try {
         const iconRes = await fetch(candidateUrl, {
-          headers: { 'User-Agent': 'Mozilla/5.0 (compatible; Linky/1.0)' },
+          headers: { 'User-Agent': 'Mozilla/5.0 (compatible; Bot/1.0)' },
           signal: AbortSignal.timeout(5000),
           redirect: 'follow',
         });
@@ -82,43 +83,35 @@ async function fetchFavicon(url: string, shortcutId: number): Promise<string | n
         fs.writeFileSync(filepath, finalBuffer);
         return filename;
       } catch (e) {
-        console.log(`[favicon] Candidate failed ${candidateUrl}:`, (e as Error).message);
+        log.debug(`[favicon] Candidate failed ${candidateUrl}:`, (e as Error).message);
         continue;
       }
     }
 
     return null;
   } catch (e) {
-    console.log(`[favicon] Outer error:`, (e as Error).message);
+    log.error(`[favicon] Failed for ${url}:`, (e as Error).message);
     return null;
   }
 }
 
+// #9: Single pass over <link> tags — rel and href are matched independently of
+// their order in the tag, and new URL(href, origin) replaces manual prefixing
 function extractIconUrls(html: string, origin: string): string[] {
-  const urls: string[] = [];
-  const linkRegex = /<link[^>]*rel=["'](?:icon|shortcut icon|apple-touch-icon)["'][^>]*>/gi;
-  let match;
-  while ((match = linkRegex.exec(html)) !== null) {
-    const hrefMatch = match[0].match(/href=["']([^"']+)["']/);
-    if (hrefMatch) {
-      let href = hrefMatch[1];
-      if (href.startsWith('//')) href = 'https:' + href;
-      else if (href.startsWith('/')) href = origin + href;
-      else if (!href.startsWith('http')) href = origin + '/' + href;
-      urls.push(href);
+  const urls = new Set<string>();
+  for (const tag of html.match(/<link\b[^>]*>/gi) ?? []) {
+    const rel = tag.match(/\brel=["']([^"']*)["']/i)?.[1] ?? '';
+    const tokens = rel.toLowerCase().split(/\s+/);
+    if (!tokens.some((t) => t === 'icon' || t.startsWith('apple-touch-icon'))) continue;
+    const href = tag.match(/\bhref=["']([^"']+)["']/i)?.[1];
+    if (!href) continue;
+    try {
+      urls.add(new URL(href, origin).href);
+    } catch {
+      // Malformed href — skip
     }
   }
-  // Also check for rel before href pattern
-  const linkRegex2 = /<link[^>]*href=["']([^"']+)["'][^>]*rel=["'](?:icon|shortcut icon|apple-touch-icon)["'][^>]*>/gi;
-  while ((match = linkRegex2.exec(html)) !== null) {
-    let href = match[1];
-    if (href.startsWith('//')) href = 'https:' + href;
-    else if (href.startsWith('/')) href = origin + href;
-    else if (!href.startsWith('http')) href = origin + '/' + href;
-    urls.push(href);
-  }
-  // #7: Deduplicate — both regex passes can match the same <link> tag
-  return [...new Set(urls)];
+  return [...urls];
 }
 
 export { fetchFavicon };

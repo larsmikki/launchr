@@ -4,7 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import os from 'os';
 
-const TEST_DATA_DIR = path.join(os.tmpdir(), 'linky-test');
+const TEST_DATA_DIR = path.join(os.tmpdir(), 'test-data');
 
 beforeAll(async () => {
   await initDb();

@@ -1,12 +1,17 @@
 services:
-  linky:
-    build: .
-    container_name: linky
+  linkpad:
+    image: larsmikki/linkpad:latest
+    container_name: linkpad
     ports:
       - "3020:3020"
     volumes:
-      - linky-data:/app/data
+      - linkpad-data:/app/data
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3020/api/settings"]
+      interval: 5m
+      timeout: 10s
+      retries: 3
 
 volumes:
-  linky-data:
+  linkpad-data:

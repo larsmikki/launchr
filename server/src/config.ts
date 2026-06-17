@@ -10,7 +10,7 @@ export const config = {
   port,
   dataDir,
   iconsDir: path.join(dataDir, 'icons'),
-  dbPath: path.join(dataDir, 'linky.db'),
+  dbPath: path.join(dataDir, 'data.db'),
   allowedOrigins: process.env.ALLOWED_ORIGINS
     ? process.env.ALLOWED_ORIGINS.split(',')
     : [`http://localhost:${port}`, 'http://localhost:3020'],
