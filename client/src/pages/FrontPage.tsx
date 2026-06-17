@@ -214,7 +214,7 @@ export default function FrontPage() {
           </svg>
         </div>
         <h2 className="text-xl font-extrabold tracking-tight" style={{ color: theme.text }}>
-          Welcome to Linkpad
+          Welcome to Launchr
         </h2>
         <p className="text-sm mt-1.5 max-w-sm" style={{ color: theme.text2 }}>
           Your launcher is empty. Add your first link, or create a group to organize them.

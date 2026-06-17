@@ -4,7 +4,7 @@ This file provides guidance to Codex (Codex.ai/code) when working with code in t
 
 ## Project Overview
 
-**Linkpad** is a self-hosted web launcher — a browser homepage for organizing URLs into a drag-and-drop grid with auto-fetched favicons. Monorepo with a React/Vite frontend and Express/TypeScript backend.
+**Launchr** is a self-hosted web launcher — a browser homepage for organizing URLs into a drag-and-drop grid with auto-fetched favicons. Monorepo with a React/Vite frontend and Express/TypeScript backend.
 
 ## Commands
 

@@ -1,6 +1,6 @@
 {
-  "name": "Linkpad",
-  "short_name": "Linkpad",
+  "name": "Launchr",
+  "short_name": "Launchr",
   "description": "Self-hosted browser homepage for organizing links",
   "start_url": "/",
   "display": "standalone",

@@ -1,5 +1,5 @@
 {
-  "name": "linkpad-server",
+  "name": "launchr-server",
   "private": true,
   "type": "module",
   "scripts": {

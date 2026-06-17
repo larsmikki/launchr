@@ -7,7 +7,7 @@ async function main() {
   await initDb();
   const app = createApp();
   app.listen(config.port, () => {
-    log.info(`Linkpad server running on http://localhost:${config.port}`);
+    log.info(`Launchr server running on http://localhost:${config.port}`);
   });
 
   // Database writes are debounced — flush pending changes on shutdown

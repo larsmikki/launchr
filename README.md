@@ -1,13 +1,13 @@
-# Linkpad
+# Launchr
 
 A lightweight, self-hosted web launcher. Organize your bookmarks into a drag-and-drop grid with collapsible groups and auto-fetched favicons.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Docker Hub](https://img.shields.io/badge/Docker%20Hub-larsmikki%2Flinkpad-blue?logo=docker)](https://hub.docker.com/r/larsmikki/linkpad)
-[![ghcr.io](https://img.shields.io/badge/ghcr.io-larsmikki%2Flinkpad-blue?logo=github)](https://github.com/larsmikki/linkpad/pkgs/container/linkpad)
-[![Last Commit](https://img.shields.io/github/last-commit/larsmikki/linkpad)](https://github.com/larsmikki/linkpad/commits/main)
+[![Docker Hub](https://img.shields.io/badge/Docker%20Hub-larsmikki%2Flaunchr-blue?logo=docker)](https://hub.docker.com/r/larsmikki/launchr)
+[![ghcr.io](https://img.shields.io/badge/ghcr.io-larsmikki%2Flaunchr-blue?logo=github)](https://github.com/larsmikki/launchr/pkgs/container/launchr)
+[![Last Commit](https://img.shields.io/github/last-commit/larsmikki/launchr)](https://github.com/larsmikki/launchr/commits/main)
 
-![Linkpad screenshot](screenshot.png)
+![Launchr screenshot](screenshot.png)
 
 ## Getting started
 
@@ -19,17 +19,17 @@ Works on Synology, Unraid, TrueNAS, QNAP, Proxmox, or a plain Docker host.
 
 ```bash
 docker run -d \
-  --name linkpad \
+  --name launchr \
   -p 3020:3020 \
-  -v linkpad-data:/app/data \
+  -v launchr-data:/app/data \
   --restart unless-stopped \
-  larsmikki/linkpad:latest
+  larsmikki/launchr:latest
 ```
 
 Or pull the published Compose file:
 
 ```bash
-curl -O https://raw.githubusercontent.com/larsmikki/linkpad/main/docker-compose.yml
+curl -O https://raw.githubusercontent.com/larsmikki/launchr/main/docker-compose.yml
 docker compose up -d
 ```
 
@@ -38,8 +38,8 @@ docker compose up -d
 Requires [Git for Windows](https://git-scm.com/download/win) and [Node.js 20+](https://nodejs.org/).
 
 ```powershell
-git clone https://github.com/larsmikki/linkpad.git
-cd linkpad
+git clone https://github.com/larsmikki/launchr.git
+cd launchr
 npm run setup
 npm run dev
 ```
@@ -50,8 +50,8 @@ For a production build: `npm run build && npm start`.
 
 ```bash
 brew install node git
-git clone https://github.com/larsmikki/linkpad.git
-cd linkpad
+git clone https://github.com/larsmikki/launchr.git
+cd launchr
 npm run setup
 npm run dev
 ```
@@ -66,8 +66,8 @@ Debian/Ubuntu:
 curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
 sudo apt-get install -y nodejs git
 
-git clone https://github.com/larsmikki/linkpad.git
-cd linkpad
+git clone https://github.com/larsmikki/launchr.git
+cd launchr
 npm run setup
 npm run dev
 ```
@@ -105,7 +105,7 @@ For a production build: `npm run build && npm start`.
 
 ## Data Persistence
 
-Data is stored in a Docker volume (`linkpad-data`) at `/app/data` inside the container. Back up via Settings → Export, or copy the volume contents directly.
+Data is stored in a Docker volume (`launchr-data`) at `/app/data` inside the container. Back up via Settings → Export, or copy the volume contents directly.
 
 ## Tech Stack
 
@@ -116,4 +116,10 @@ Data is stored in a Docker volume (`linkpad-data`) at `/app/data` inside the con
 
 ## Support
 
-If you find Linkpad useful, consider [buying me a coffee](https://buymeacoffee.com/larsmikki). Linkpad is and always will be free, open source, and self-hosted.
+If you find Launchr useful, consider [buying me a coffee](https://buymeacoffee.com/larsmikki). Launchr is and always will be free, open source, and self-hosted.
+
+## Upgrading from Linkpad
+
+The app was renamed to Launchr. One breaking change affects existing deployments:
+
+- **Docker volume**: the named volume changed from `linkpad-data` to `launchr-data`. Copy volume contents to the new volume before redeploying, or re-enter data from the UI. The storage file (`data.db`) and env var (`DATA_DIR`) are unchanged.

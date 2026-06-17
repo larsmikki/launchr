@@ -35,7 +35,7 @@ export default function SettingsPage({ settings, onSave }: Props) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `linkpad-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = `launchr-backup-${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
     URL.revokeObjectURL(url);
     addToast('Backup exported', 'success');
@@ -131,12 +131,12 @@ export default function SettingsPage({ settings, onSave }: Props) {
       <div className="max-w-2xl mx-auto">
         <div className="mb-8">
           <h1 className="text-2xl font-extrabold tracking-tight text-text">Settings</h1>
-          <p className="text-sm mt-0.5 text-text2">Customize your Linkpad experience.</p>
+          <p className="text-sm mt-0.5 text-text2">Customize your Launchr experience.</p>
         </div>
 
         <Surface className="p-6 mb-5">
           <h2 className="text-base font-bold mb-1 text-text">Themes</h2>
-          <p className="text-xs mb-5 text-text2">Choose how Linkpad looks to you.</p>
+          <p className="text-xs mb-5 text-text2">Choose how Launchr looks to you.</p>
           <ThemePicker />
         </Surface>
 

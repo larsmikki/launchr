@@ -1,11 +1,11 @@
 services:
-  linkpad:
-    image: larsmikki/linkpad:latest
-    container_name: linkpad
+  launchr:
+    image: larsmikki/launchr:latest
+    container_name: launchr
     ports:
       - "3020:3020"
     volumes:
-      - linkpad-data:/app/data
+      - launchr-data:/app/data
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "http://localhost:3020/api/settings"]
@@ -14,4 +14,4 @@ services:
       retries: 3
 
 volumes:
-  linkpad-data:
+  launchr-data:
